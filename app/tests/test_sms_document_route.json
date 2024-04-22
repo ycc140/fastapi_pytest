@@ -1,0 +1,45 @@
+{
+  "UBID": "2a168739-b204-4abf-aec1-a88069e3cd08",
+  "create_document": {
+    "payload": {
+      "UBID": "2a168739-b204-4abf-aec1-a88069e3cd08",
+      "fileName": "2a168739-b204-4abf-aec1-a88069e3cd08.zip",
+      "origName": "20211119-165542309564-01.xml",
+      "documents": {
+        "1000019152": {
+          "smsData": {
+            "refId": "2a168739-b204-4abf-aec1-a88069e3cd08.0000019152"
+          },
+          "SMScount": 1
+        },
+        "1000019153": {
+          "smsData": {
+            "refId": "2a168739-b204-4abf-aec1-a88069e3cd08.0000019152"
+          },
+          "SMScount": 1
+        },
+        "1000019154": {
+          "smsData": {
+            "refId": "2a168739-b204-4abf-aec1-a88069e3cd08.0000019152"
+          },
+          "SMScount": 1
+        }
+      }
+    },
+    "response": {
+      "result": "Inserted 3 document(s) for UBID '2a168739-b204-4abf-aec1-a88069e3cd08' in table tracking.sms_documents"
+    }
+  },
+  "create_integrity_error": {
+    "detail": "Failed Upsert of UBID '2a168739-b204-4abf-aec1-a88069e3cd08' document(s) in table tracking.sms_documents => (builtins.str) Something went wrong"
+  },
+  "count": {
+    "result": "Found 3 document(s) for UBID '2a168739-b204-4abf-aec1-a88069e3cd08' in table tracking.sms_documents"
+  },
+  "read_http_error": {
+    "detail": "UBID '2a168739-b204-4abf-aec1-a88069e3cd08' not found in table tracking.sms_documents"
+  },
+  "update_state": {
+    "result": "Updated state to 'SENT' in 344 row(s) for UBID '2a168739-b204-4abf-aec1-a88069e3cd08' in table tracking.sms_documents"
+  }
+}

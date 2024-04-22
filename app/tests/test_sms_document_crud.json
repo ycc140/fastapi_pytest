@@ -1,0 +1,63 @@
+{
+  "UBID": "2a168739-b204-4abf-aec1-a88069e3cd08",
+  "create_transfer": {
+    "payload": {
+      "SMScount": 4,
+      "documents": 2,
+      "UBID": "2a168739-b204-4abf-aec1-a88069e3cd08",
+      "origName": "20211119-165542309564-01.xml",
+      "fileName": "2a168739-b204-4abf-aec1-a88069e3cd08.zip"
+    },
+    "response": 1
+  },
+  "create_document": {
+    "payload": {
+      "UBID": "2a168739-b204-4abf-aec1-a88069e3cd08",
+      "fileName": "2a168739-b204-4abf-aec1-a88069e3cd08.zip",
+      "origName": "20211119-165542309564-01.xml",
+      "documents": {
+        "1000019152": {
+          "smsData": {
+            "refId": "2a168739-b204-4abf-aec1-a88069e3cd08.0000019152"
+          },
+          "SMScount": 1
+        },
+        "1000019153": {
+          "smsData": {
+            "refId": "2a168739-b204-4abf-aec1-a88069e3cd08.0000019152"
+          },
+          "SMScount": 1
+        },
+        "1000019154": {
+          "smsData": {
+            "refId": "2a168739-b204-4abf-aec1-a88069e3cd08.0000019152"
+          },
+          "SMScount": 1
+        }
+      }
+    },
+    "response": 3
+  },
+  "count": {
+    "payload": "2a168739-b204-4abf-aec1-a88069e3cd08",
+    "response": 3
+  },
+  "count_fail": {
+    "payload": "11dfd495-dc0a-11e6-a783-00059a3c7a00",
+    "response": 0
+  },
+  "update_state": {
+    "payload": [
+      "2a168739-b204-4abf-aec1-a88069e3cd08",
+      "SENT"
+    ],
+    "response": 3
+  },
+  "update_fail": {
+    "payload": [
+      "11dfd495-dc0a-11e6-a783-00059a3c7a00",
+      "SENT"
+    ],
+    "response": 0
+  }
+}
