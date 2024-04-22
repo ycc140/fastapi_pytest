@@ -6,8 +6,8 @@ License: Apache 2.0
 VERSION INFO:
     $Repo: fastapi_pytest
   $Author: Anders Wiklund
-    $Date: 2024-04-22 16:14:44
-     $Rev: 1
+    $Date: 2024-04-22 23:54:37
+     $Rev: 2
 ```
 """
 
@@ -71,12 +71,14 @@ class SmsDocumentPayload(SQLModel):
 
     Attributes:
         UBID: The SMS transfer BATCH ID.
-        documents: A dictionary containing the SMS documents in the transfer batch.
+        documents:
+            A dictionary containing the SMS documents in the transfer batch.
+            A limit is set to a maximum of 5000 documents.
     """
     model_config = ConfigDict(json_schema_extra={"example": payload_documentation})
 
     UBID: str = Field(max_length=36)
-    documents: Dict[str, SmsDocumentItem]
+    documents: Dict[str, SmsDocumentItem] = Field(max_length=5000)
 
 
 # ---------------------------------------------------------

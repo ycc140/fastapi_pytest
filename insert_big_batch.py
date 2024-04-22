@@ -6,8 +6,8 @@ License: Apache 2.0
 VERSION INFO:
     $Repo: fastapi_pytest
   $Author: Anders Wiklund
-    $Date: 2024-04-22 16:14:44
-     $Rev: 1
+    $Date: 2024-04-22 23:54:37
+     $Rev: 2
 ```
 """
 
@@ -85,12 +85,14 @@ async def create_and_insert_batch_documents(batch_size: int, ubid: str):
         response = await client.post(url=url, json=payload,
                                      headers=HDR_DATA)
 
-    if response.status_code != 201:
-        raise RuntimeError(f"Failed to create batch documents "
-                           f"with status code {response.status_code}")
+    if response.status_code == 201:
+        print(f"Created batch documents with "
+              f"response: {response.json()['result']}")
 
-    print(f"Created batch documents with "
-          f"response: {response.json()['result']}")
+    else:
+        errmsg = '{type}, {loc}, {msg}'.format(**response.json()['detail'][0])
+        print(f"ERROR: Failed to create batch documents with status "
+              f"code {response.status_code} => {errmsg}.")
 
 
 # ---------------------------------------------------------
