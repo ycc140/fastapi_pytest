@@ -6,8 +6,8 @@ License: Apache 2.0
 VERSION INFO:
     $Repo: fastapi_pytest
   $Author: Anders Wiklund
-    $Date: 2024-04-22 16:14:44
-     $Rev: 1
+    $Date: 2024-04-23 01:15:57
+     $Rev: 3
 ```
 """
 
@@ -20,7 +20,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.ext.asyncio import create_async_engine
 
-connection_url = ('sqlite+aiosqlite:///tracking_test.db'
+connection_url = ('sqlite+aiosqlite:///:memory:?cache=shared'
                   if "pytest" in modules
                   else 'sqlite+aiosqlite:///tracking.db')
 """ DB connection URL. """
