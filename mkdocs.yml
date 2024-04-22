@@ -1,0 +1,110 @@
+site_name: The TrackingDb API Example
+
+theme:
+  name: 'material'
+  custom_dir: 'docs/theme'
+  palette:
+  - media: "(prefers-color-scheme: light)"
+    scheme: default
+    primary: deep orange
+    accent: deep orange
+    toggle:
+      icon: material/lightbulb-outline
+      name: "Switch to dark mode"
+  - media: "(prefers-color-scheme: dark)"
+    scheme: slate
+    primary: deep orange
+    accent: deep orange
+    toggle:
+      icon: material/lightbulb
+      name: "Switch to light mode"
+
+extra_css:
+  - 'extra/terminal.css'
+  - 'extra/tweaks.css'
+extra_javascript:
+  - 'extra/feedback.js'
+  - 'extra/fluff.js'
+  - 'https://samuelcolvin.github.io/mkdocs-run-code/run_code_main.js'
+
+nav:
+- Home: index.md
+- Techniques in the example:
+  - Used design patterns: abstractions.md
+  - Tests using MonkeyPatch: test_monkey_patch.md
+  - Separate test data files: test_data_files.md
+  - Database integrity: db_integrity.md
+  - Using bulk Upsert: bulk_upserts.md
+  - OpenAPI documentation: openapi_docs.md
+- Code documentation:
+  - Main modules:
+      - main: main.md
+      - run: run.md
+      - insert_big_batch: insert_batch.md
+  - core:
+    - database: core_db.md
+    - documentation: core_docs.md
+    - models: core_models.md
+    - unified_logging: core_logging.md
+  - API modules:
+    - sms_document:
+      - documentation: sms_document_docs.md
+      - models: sms_document_models.md
+      - interface: sms_document_if.md
+      - sms_document_crud: sms_document_crud.md
+      - dependencies: sms_document_dep.md
+      - sms_document_routes: sms_document_routes.md
+    - sms_transfer:
+      - documentation: sms_transfer_docs.md
+      - models: sms_transfer_models.md
+      - interface: sms_transfer_if.md
+      - sms_transfer_crud: sms_transfer_crud.md
+      - dependencies: sms_transfer_dep.md
+      - sms_transfer_routes: sms_transfer_routes.md
+  - tests:
+      - pytest.ini: pytest_ini.md
+      - conftest: conftest.md
+      - test_sms_document_crud: test_sms_doc_crud.md
+      - test_sms_document_route: test_sms_doc_route.md
+      - test_sms_transfers_crud: test_sms_tran_crud.md
+      - test_sms_transfers_route: test_sms_tran_route.md
+      - test_validation_model: test_validation_model.md
+
+markdown_extensions:
+- tables
+- def_list
+- toc:
+    permalink: true
+    title: Page contents
+- admonition
+- pymdownx.details
+- pymdownx.superfences
+- pymdownx.highlight:
+    pygments_lang_class: true
+- pymdownx.extra
+- pymdownx.snippets
+- pymdownx.emoji:
+    emoji_index: !!python/name:material.extensions.emoji.twemoji
+    emoji_generator: !!python/name:material.extensions.emoji.to_svg
+- pymdownx.tabbed:
+    alternate_style: true
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [.]
+          options:
+            members_order: source
+            separate_signature: true
+            filters: ["!^_"]
+            docstring_options:
+              ignore_init_summary: true
+            merge_init_into_class: true
+            show_signature_annotations: true
+            signature_crossrefs: true
+            extensions:
+              - docs/plugins/griffe_doclinks.py
+          import:
+            - https://docs.python.org/3/objects.inv

@@ -1,0 +1,57 @@
+{
+  "UBID": "2a168739-b204-4abf-aec1-a88069e3cd08",
+  "create_transfer": {
+    "payload": {
+      "SMScount": 4,
+      "documents": 2,
+      "UBID": "2a168739-b204-4abf-aec1-a88069e3cd08",
+      "origName": "20211119-165542309564-01.xml",
+      "fileName": "2a168739-b204-4abf-aec1-a88069e3cd08.zip"
+    },
+    "response": 1
+  },
+  "create_fail": {
+    "payload": {
+      "role": "something"
+    },
+    "response": "SmsTransferCrud.create() got an unexpected keyword argument 'role'"
+  },
+  "read_all": {
+    "response": [
+      {
+        "SMScount": 4,
+        "documents": 2,
+        "UBID": "2a168739-b204-4abf-aec1-a88069e3cd08",
+        "fileName": "2a168739-b204-4abf-aec1-a88069e3cd08.zip",
+        "origName": "20211119-165542309564-01.xml",
+        "fallbackCount": 0,
+        "state": "INIT",
+        "when": "2021-10-31T11:42:15"
+      }
+    ]
+  },
+  "update_state": {
+    "orig": {
+      "SMScount": 4,
+      "documents": 2,
+      "state": "INIT",
+      "fallbackCount": 0,
+      "when": "2021-10-31T11:42:15",
+      "UBID": "2a168739-b204-4abf-aec1-a88069e3cd08",
+      "origName": "20211119-165542309564-01.xml",
+      "fileName": "2a168739-b204-4abf-aec1-a88069e3cd08.zip"
+    },
+    "response": {
+      "SMScount": 4,
+      "documents": 2,
+      "state": "SENT",
+      "fallbackCount": 0,
+      "when": "2021-10-31T11:42:15",
+      "UBID": "2a168739-b204-4abf-aec1-a88069e3cd08",
+      "origName": "20211119-165542309564-01.xml",
+      "fileName": "2a168739-b204-4abf-aec1-a88069e3cd08.zip"
+    }
+  },
+  "remove": 1,
+  "remove_not_found": 0
+}
