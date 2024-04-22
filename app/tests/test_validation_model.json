@@ -1,4 +1,0 @@
-{
-  "wrong_type": "Input should be a valid string [type=string_type, input_value=1, input_type=int]",
-  "wrong_size": "String should have at most 5 characters [type=string_too_long, input_value='000001', input_type=str]"
-}
