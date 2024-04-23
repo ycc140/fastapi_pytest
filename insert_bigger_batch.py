@@ -6,8 +6,8 @@ License: Apache 2.0
 VERSION INFO:
     $Repo: fastapi_pytest
   $Author: Anders Wiklund
-    $Date: 2024-04-23 11:38:26
-     $Rev: 4
+    $Date: 2024-04-23 18:04:19
+     $Rev: 6
 ```
 """
 
@@ -78,18 +78,16 @@ async def create_and_insert_batch_documents(batch_size: int, ubid: str):
     documents = []
     docid = 1000000001
     stop = API_BATCH_LIMIT
-    payload = {"UBID": ubid,
-               "documents": {},
-               "fileName": f'{ubid}.zip',
-               "origName": "20211119-165542309-01.xml"}
+    payload = {"UBID": ubid, "documents": {}}
     url = 'http://localhost:7000/tracking/sms_documents/'
 
     # Create a list that holds all requested documents in the batch.
     for idx in range(batch_size):
         key = docid + idx
-        documents.append({f'{key}': {
-            "SMScount": 1,
-            "smsData": {"refId": f"{ubid}.{key}"}}})
+        documents.append({
+            f'{key}': {
+                "SMScount": 1,
+                "smsData": {"refId": f"{ubid}.{key}"}}})
 
     async with AsyncClient() as client:
 

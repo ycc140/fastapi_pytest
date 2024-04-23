@@ -6,8 +6,8 @@ License: Apache 2.0
 VERSION INFO:
     $Repo: fastapi_pytest
   $Author: Anders Wiklund
-    $Date: 2024-04-23 11:38:26
-     $Rev: 4
+    $Date: 2024-04-23 18:04:19
+     $Rev: 6
 ```
 """
 
@@ -70,10 +70,7 @@ async def create_and_insert_batch_documents(batch_size: int, ubid: str):
         ubid: Unique Batch ID.
     """
     docid = 1000000001
-    payload = {"UBID": ubid,
-               "documents": {},
-               "fileName": f'{ubid}.zip',
-               "origName": "20211119-165542309564-01.xml"}
+    payload = {"UBID": ubid, "documents": {}}
 
     for idx in range(batch_size):
         key = docid + idx
