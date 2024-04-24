@@ -22,35 +22,29 @@ or [PostgreSQL](https://docs.sqlalchemy.org/en/20/dialects/postgresql.html#inser
 
 ### bulk upserts
 
-``` py linenums="1" hl_lines="2-10 14-19" title="app/sms_document/sms_document_crud.py"
-async def create(self, payload: SmsDocumentPayload) -> int:
-    data = [
-        {
-            "uniqueId": doc_id,
-            'data': item.smsData,
-            'UBID': payload.UBID,
-            "SMScount": item.SMScount,
-        }
-        for doc_id, item in payload.documents.items()
-    ]
-    query = (
-        upsert(SmsDocumentModel)
-        .values(data)
-        .on_conflict_do_update(
-            index_elements=['UBID', 'uniqueId'],
-            set_=dict(
-                state=SmsDocumentState.INIT,
-                when=func.current_timestamp())
+``` py linenums="1" hl_lines="3-4 9-14" title="snipped from: app/sms_document/sms_document_crud.py"
+    async def create(self, payload: SmsDocumentPayload) -> int:
+
+        for document in payload.documents:
+            document.UBID = payload.UBID
+
+        query = (
+            upsert(SmsDocumentModel)
+            .values(payload.model_dump()['documents'])
+            .on_conflict_do_update(
+                index_elements=['UBID', 'uniqueId'],
+                set_=dict(
+                    state=SmsDocumentState.INIT,
+                    when=func.current_timestamp())
+            )
         )
-    )
-    response: CursorResult = await self.session.exec(query)
-    await self.session.commit()
-    return response.rowcount
+        response: CursorResult = await self.session.exec(query)
+        await self.session.commit()
+        return response.rowcount
 ```
 
-The first highlight shows how to create a list of the documents that you want to
-use for the bulk INSERT, or possibly UPDATE.
-The created list is added to the query on line 13.
+The first highlight shows the code that adds the UBID in all the batch documents in the
+`SmsDocumentItem` model. The batch documents are added to the query on line 8.
 
 The second highlight shows `conflict_db_update`. That is what kicks in when there's
 a primary key conflict. In my case the `state` is reset and the` when` timestamp is updated.

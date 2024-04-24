@@ -41,7 +41,7 @@ nav:
   - Main modules:
       - main: main.md
       - run: run.md
-      - insert_big_batch: insert_batch.md
+      - insert_bigger_batch: insert_batch.md
   - core:
     - database: core_db.md
     - documentation: core_docs.md
