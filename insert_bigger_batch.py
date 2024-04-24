@@ -6,8 +6,8 @@ License: Apache 2.0
 VERSION INFO:
     $Repo: fastapi_pytest
   $Author: Anders Wiklund
-    $Date: 2024-04-24 21:06:12
-     $Rev: 9
+    $Date: 2024-04-24 23:10:39
+     $Rev: 10
 ```
 """
 
@@ -66,10 +66,11 @@ async def create_and_insert_batch_transfer(batch_size: int) -> str:
 
 # ---------------------------------------------------------
 #
-def create_and_prepare_documents_data(batch_size: int, ubid: str) -> dict:
-    """  Create and prepare SMS batch documents for DB INSERT.
+def generate_documents(batch_size: int, ubid: str) -> tuple:
+    """ Generate sub-batches that adhere to the API batch limit.
 
-    Create sub-batches that adhere to the API batch limit.
+    Note that this is a generator, which reduces memory footprint
+    to one sub-batch per iteration, regardless of total batch size.
 
     Args:
         batch_size: Requested batch size
@@ -80,13 +81,15 @@ def create_and_prepare_documents_data(batch_size: int, ubid: str) -> dict:
         that match the API batch limit.
     """
     batch = 1
-    batches = {}
+    documents = []
 
     for idx in range(batch_size):
         docid = idx + 1
         key = f'{docid:010}'
 
         if idx > 0 and idx % API_BATCH_LIMIT == 0:
+            yield batch, documents
+            documents = []
             batch += 1
 
         document = {
@@ -97,9 +100,11 @@ def create_and_prepare_documents_data(batch_size: int, ubid: str) -> dict:
                 "refId": f"{ubid}.{key}",
                 "destination": f"+01708{key}",
                 "userData": "Welcome to your..."}}
-        batches.setdefault(batch, []).append(document)
+        documents.append(document)
 
-    return batches
+    # Return remaining documents that are
+    # left after the last iteration.
+    yield batch, documents
 
 
 # ---------------------------------------------------------
@@ -139,10 +144,9 @@ async def creator(args: argparse.Namespace):
         args: Namespace object containing command line arguments.
     """
     ubid = await create_and_insert_batch_transfer(args.batch_size)
-    sub_batches = create_and_prepare_documents_data(args.batch_size, ubid)
 
     async with AsyncClient() as client:
-        for batch_id, documents in sub_batches.items():
+        for batch_id, documents in generate_documents(args.batch_size, ubid):
             payload = {"UBID": ubid, "documents": documents}
             await asyncio.create_task(
                 send_sms_batch_documents(client, batch_id, payload)

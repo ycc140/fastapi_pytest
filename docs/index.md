@@ -24,7 +24,7 @@ The following techniques are incorporated and explained in the example:
   * Using the Repository and the Dependency Injection design patterns.
   * Using DB foreign key table linking with a cascading delete constraint.
   * Using bulk `Upsert` techniques with SQLModel and alchemy ORM handling.
-  * How to split a document batch > 5000 documents into sub-batches.
+  * How to split a document batch > 5000 documents into sub-batches in a memory efficient way.
   * Using colorized and unified logs with the same formatting for all components.
   * Explains how and where to add OpenAPI documentation to enrich the user experience.
   * How to get SQLModel to do validation even when the `table=True` flag is set.
@@ -41,7 +41,6 @@ The following picture shows the logical structure of the example:
 This is the directory structure of the example. The docs directory structure has been omitted for clarity reasons.
 
     📂 fastapi_pytest
-    ├──📃 insert_big_batch.py
     ├──📃 insert_bigger_batch.py
     ├──📃 mkdocs.yml
     ├──📃 requirements.txt
