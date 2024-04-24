@@ -6,8 +6,8 @@ License: Apache 2.0
 VERSION INFO:
     $Repo: fastapi_pytest
   $Author: Anders Wiklund
-    $Date: 2024-04-23 18:04:19
-     $Rev: 6
+    $Date: 2024-04-24 12:30:00
+     $Rev: 8
 ```
 """
 
@@ -16,17 +16,18 @@ import json
 import asyncio
 import argparse
 from uuid import uuid4
+from typing import Tuple
 from collections import ChainMap
 
 # Third party modules
-from httpx import AsyncClient
+from httpx import AsyncClient, Response
 
 # Local modules
 from app.sms_transfer.models import SmsTransferPayload
 
 # Constants
 API_BATCH_LIMIT = 5000
-""" Request batch limit used with httpx requests. """
+""" API request batch limit. """
 HDR_DATA = {"Content-Type": "application/json"}
 """ header data used for httpx requests. """
 
@@ -34,7 +35,9 @@ HDR_DATA = {"Content-Type": "application/json"}
 # ---------------------------------------------------------
 #
 async def create_and_insert_batch_transfer(batch_size: int) -> str:
-    """ Create and insert batch transfer.
+    """
+    Create and insert an SMS batch transfer in DB table
+    tracking.sms_transfers.
 
     Args:
         batch_size: Size of the batch to create.
@@ -65,51 +68,85 @@ async def create_and_insert_batch_transfer(batch_size: int) -> str:
 
 # ---------------------------------------------------------
 #
-async def create_and_insert_batch_documents(batch_size: int, ubid: str):
-    """ Create and insert batch documents.
+def create_and_prepare_documents_data(
+        batch_size: int, ubid: str
+) -> dict:
+    """  Create and prepare SMS batch documents for DB INSERT.
 
-    This method can handle any specified batch size since it will
-    create sub-batches to adhere to the API batch limit.
+    Create sub-batches that adhere to the API batch limit.
 
     Args:
-        batch_size: Size of the batch to create.
+        batch_size: Requested batch size
         ubid: Unique Batch ID.
+
+    Returns:
+        SMS documents assigned to sub-batches
+        that match the API batch limit.
     """
-    documents = []
-    docid = 1000000001
-    stop = API_BATCH_LIMIT
-    payload = {"UBID": ubid, "documents": {}}
-    url = 'http://localhost:7000/tracking/sms_documents/'
+    docid = 1
+    batch = 1
+    batches = {}
 
-    # Create a list that holds all requested documents in the batch.
-    for idx in range(batch_size):
+    for total, idx in enumerate(range(batch_size)):
         key = docid + idx
-        documents.append({
-            f'{key}': {
+
+        if total > 0 and total % API_BATCH_LIMIT == 0:
+            batch += 1
+
+        document = {
+            f'{key:06}': {
                 "SMScount": 1,
-                "smsData": {"refId": f"{ubid}.{key}"}}})
+                "smsData": {
+                    "source": "DentalCare",
+                    "refId": f"{ubid}.{key:06}",
+                    "destination": f"+01708{key:06}",
+                    "userData": "Welcome to your..."}}}
+        batches.setdefault(batch, []).append(document)
 
-    async with AsyncClient() as client:
+    return batches
 
-        # Create sub-batches that adhere to the API documents batch limit.
-        for start in range(0, batch_size, API_BATCH_LIMIT):
 
-            # Create a documents dict with the correct batch limit.
-            payload["documents"] = dict(ChainMap(*documents[start:stop]))
+# ---------------------------------------------------------
+#
+async def send_sms_batch_documents(
+        client: AsyncClient, batch_id: int, payload: dict
+) -> Tuple[int, Response]:
+    """
+    Insert an SMS sub-batch of documents in DB table
+    tracking.sms_documents.
 
-            # Insert the data in the database.
-            response = await client.post(url=url, json=payload, headers=HDR_DATA)
+    Args:
+        client: Request response.
+        batch_id: Sub-batch ID.
+        payload: SMS message data.
 
-            if response.status_code == 201:
-                print(f"Sent batch documents with "
-                      f"response: {response.json()['result']}")
+    Returns:
+        Sub-batch ID and request response.
+    """
+    url = 'http://localhost:7000/tracking/sms_documents/'
+    response = await client.post(url=url, json=payload, headers=HDR_DATA)
 
-            else:
-                print(f"ERROR: Failed to create batch documents with status "
-                      f"code {response.status_code} => {response.json()['detail']}.")
+    return batch_id, response
 
-            # update stop index for next iteration
-            stop += API_BATCH_LIMIT
+
+# ---------------------------------------------------------
+#
+def check_send_sms_batch_documents_response(results: list):
+    """ Process SMS batch document sub-batch responses.
+
+    Args:
+        results: List of send results.
+    """
+    for batch_id, response in results:
+
+        if response.status_code == 201:
+            print(f"Sent sub-batch {batch_id:02} of documents "
+                  f"with response: {response.json()['result']}")
+
+        else:
+            print(f"ERROR: Failed to create sub-batch {batch_id:02} of "
+                  f"documents with status code {response.status_code} => "
+                  f"{response.json()['detail']}.")
 
 
 # ---------------------------------------------------------
@@ -117,11 +154,25 @@ async def create_and_insert_batch_documents(batch_size: int, ubid: str):
 async def creator(args: argparse.Namespace):
     """ Create and insert a big SMS transfer batch (with documents) in the DB.
 
+    This method can handle any specified batch size since it will
+    create sub-batches to adhere to the API batch limit.
+
     Args:
         args: Namespace object containing command line arguments.
     """
+    tasks = []
     ubid = await create_and_insert_batch_transfer(args.batch_size)
-    await create_and_insert_batch_documents(args.batch_size, ubid)
+    sub_batches = create_and_prepare_documents_data(args.batch_size, ubid)
+
+    async with AsyncClient() as client:
+        for batch_id, documents in sub_batches.items():
+            payload = {"UBID": ubid, "documents": dict(ChainMap(*documents))}
+            tasks.append(send_sms_batch_documents(client, batch_id, payload))
+
+        # Execute all tasks concurrently
+        # and display the result when finished.
+        result = await asyncio.gather(*tasks)
+        check_send_sms_batch_documents_response(result)
 
 
 # ---------------------------------------------------------
