@@ -3,37 +3,38 @@
   "create_document": {
     "payload": {
       "UBID": "2a168739-b204-4abf-aec1-a88069e3cd08",
-      "fileName": "2a168739-b204-4abf-aec1-a88069e3cd08.zip",
-      "origName": "20211119-165542309564-01.xml",
-      "documents": {
-        "1000019152": {
-          "smsData": {
+      "documents": [
+        {
+          "SMScount": 1,
+          "uniqueId": "1000019152",
+          "data": {
             "source": "DentalCare",
             "destination": "+01708804622",
             "userData": "Welcome to your...",
             "refId": "2a168739-b204-4abf-aec1-a88069e3cd08.0000019152"
-          },
-          "SMScount": 1
+          }
         },
-        "1000019153": {
-          "smsData": {
+        {
+          "SMScount": 1,
+          "uniqueId": "1000019153",
+          "data": {
             "source": "DentalCare",
             "destination": "+01708804623",
             "userData": "Welcome to your...",
-            "refId": "2a168739-b204-4abf-aec1-a88069e3cd08.0000019152"
-          },
-          "SMScount": 1
+            "refId": "2a168739-b204-4abf-aec1-a88069e3cd08.0000019153"
+          }
         },
-        "1000019154": {
-          "smsData": {
+        {
+          "SMScount": 1,
+          "uniqueId": "1000019154",
+          "data": {
             "source": "DentalCare",
             "destination": "+01708804624",
             "userData": "Welcome to your...",
-            "refId": "2a168739-b204-4abf-aec1-a88069e3cd08.0000019152"
-          },
-          "SMScount": 1
+            "refId": "2a168739-b204-4abf-aec1-a88069e3cd08.0000019154"
+          }
         }
-      }
+      ]
     },
     "response": {
       "result": "Inserted 3 document(s) for UBID '2a168739-b204-4abf-aec1-a88069e3cd08' in table tracking.sms_documents"

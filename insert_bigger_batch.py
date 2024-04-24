@@ -6,8 +6,8 @@ License: Apache 2.0
 VERSION INFO:
     $Repo: fastapi_pytest
   $Author: Anders Wiklund
-    $Date: 2024-04-24 12:30:00
-     $Rev: 8
+    $Date: 2024-04-24 21:06:12
+     $Rev: 9
 ```
 """
 
@@ -16,11 +16,9 @@ import json
 import asyncio
 import argparse
 from uuid import uuid4
-from typing import Tuple
-from collections import ChainMap
 
 # Third party modules
-from httpx import AsyncClient, Response
+from httpx import AsyncClient
 
 # Local modules
 from app.sms_transfer.models import SmsTransferPayload
@@ -68,9 +66,7 @@ async def create_and_insert_batch_transfer(batch_size: int) -> str:
 
 # ---------------------------------------------------------
 #
-def create_and_prepare_documents_data(
-        batch_size: int, ubid: str
-) -> dict:
+def create_and_prepare_documents_data(batch_size: int, ubid: str) -> dict:
     """  Create and prepare SMS batch documents for DB INSERT.
 
     Create sub-batches that adhere to the API batch limit.
@@ -83,24 +79,24 @@ def create_and_prepare_documents_data(
         SMS documents assigned to sub-batches
         that match the API batch limit.
     """
-    docid = 1
     batch = 1
     batches = {}
 
-    for total, idx in enumerate(range(batch_size)):
-        key = docid + idx
+    for idx in range(batch_size):
+        docid = idx + 1
+        key = f'{docid:010}'
 
-        if total > 0 and total % API_BATCH_LIMIT == 0:
+        if idx > 0 and idx % API_BATCH_LIMIT == 0:
             batch += 1
 
         document = {
-            f'{key:06}': {
-                "SMScount": 1,
-                "smsData": {
-                    "source": "DentalCare",
-                    "refId": f"{ubid}.{key:06}",
-                    "destination": f"+01708{key:06}",
-                    "userData": "Welcome to your..."}}}
+            "SMScount": 1,
+            "uniqueId": key,
+            "data": {
+                "source": "DentalCare",
+                "refId": f"{ubid}.{key}",
+                "destination": f"+01708{key}",
+                "userData": "Welcome to your..."}}
         batches.setdefault(batch, []).append(document)
 
     return batches
@@ -108,9 +104,7 @@ def create_and_prepare_documents_data(
 
 # ---------------------------------------------------------
 #
-async def send_sms_batch_documents(
-        client: AsyncClient, batch_id: int, payload: dict
-) -> Tuple[int, Response]:
+async def send_sms_batch_documents(client: AsyncClient, batch_id: int, payload: dict):
     """
     Insert an SMS sub-batch of documents in DB table
     tracking.sms_documents.
@@ -119,34 +113,18 @@ async def send_sms_batch_documents(
         client: Request response.
         batch_id: Sub-batch ID.
         payload: SMS message data.
-
-    Returns:
-        Sub-batch ID and request response.
     """
     url = 'http://localhost:7000/tracking/sms_documents/'
     response = await client.post(url=url, json=payload, headers=HDR_DATA)
 
-    return batch_id, response
+    if response.status_code == 201:
+        print(f"Sent sub-batch {batch_id:02} of documents "
+              f"with response: {response.json()['result']}")
 
-
-# ---------------------------------------------------------
-#
-def check_send_sms_batch_documents_response(results: list):
-    """ Process SMS batch document sub-batch responses.
-
-    Args:
-        results: List of send results.
-    """
-    for batch_id, response in results:
-
-        if response.status_code == 201:
-            print(f"Sent sub-batch {batch_id:02} of documents "
-                  f"with response: {response.json()['result']}")
-
-        else:
-            print(f"ERROR: Failed to create sub-batch {batch_id:02} of "
-                  f"documents with status code {response.status_code} => "
-                  f"{response.json()['detail']}.")
+    else:
+        print(f"ERROR: Failed to create sub-batch {batch_id:02} of "
+              f"documents with status code {response.status_code} => "
+              f"{response.json()['detail']}.")
 
 
 # ---------------------------------------------------------
@@ -160,19 +138,15 @@ async def creator(args: argparse.Namespace):
     Args:
         args: Namespace object containing command line arguments.
     """
-    tasks = []
     ubid = await create_and_insert_batch_transfer(args.batch_size)
     sub_batches = create_and_prepare_documents_data(args.batch_size, ubid)
 
     async with AsyncClient() as client:
         for batch_id, documents in sub_batches.items():
-            payload = {"UBID": ubid, "documents": dict(ChainMap(*documents))}
-            tasks.append(send_sms_batch_documents(client, batch_id, payload))
-
-        # Execute all tasks concurrently
-        # and display the result when finished.
-        result = await asyncio.gather(*tasks)
-        check_send_sms_batch_documents_response(result)
+            payload = {"UBID": ubid, "documents": documents}
+            await asyncio.create_task(
+                send_sms_batch_documents(client, batch_id, payload)
+            )
 
 
 # ---------------------------------------------------------

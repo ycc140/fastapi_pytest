@@ -6,15 +6,15 @@ License: Apache 2.0
 VERSION INFO:
     $Repo: fastapi_pytest
   $Author: Anders Wiklund
-    $Date: 2024-04-22 23:54:37
-     $Rev: 2
+    $Date: 2024-04-24 21:06:12
+     $Rev: 9
 ```
 """
 
 # BUILTIN modules
 from enum import Enum
 from datetime import datetime
-from typing import Optional, Dict
+from typing import Optional, List
 
 # Third party modules
 from pydantic import PositiveInt, ConfigDict
@@ -57,11 +57,15 @@ class SmsDocumentItem(SQLModel):
     """ An SMS document payload item.
 
     Attributes:
-        smsData: The SMS metadata.
+        data: The SMS metadata.
         SMScount: Number of 160 character block message splits.
+        UBID: The SMS transfer batch ID.
+        uniqueId: Unique SMS transfer ID.
     """
-    smsData: dict
+    data: dict
     SMScount: PositiveInt
+    UBID: Optional[str] = None
+    uniqueId: str = Field(max_length=10)
 
 
 # -----------------------------------------------------------------------------
@@ -78,7 +82,7 @@ class SmsDocumentPayload(SQLModel):
     model_config = ConfigDict(json_schema_extra={"example": payload_documentation})
 
     UBID: str = Field(max_length=36)
-    documents: Dict[str, SmsDocumentItem] = Field(max_length=5000)
+    documents: List[SmsDocumentItem] = Field(max_length=5000)
 
 
 # ---------------------------------------------------------

@@ -35,6 +35,7 @@ nav:
   - Separate test data files: test_data_files.md
   - Database integrity: db_integrity.md
   - Using bulk Upsert: bulk_upserts.md
+  - Splitting big batches into smaller sub-batches: bulk_upsert_split.md
   - OpenAPI documentation: openapi_docs.md
 - Code documentation:
   - Main modules:

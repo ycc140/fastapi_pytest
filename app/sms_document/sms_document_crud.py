@@ -7,7 +7,7 @@ VERSION INFO:
     $Repo: fastapi_pytest
   $Author: Anders Wiklund
    $search_date:: 2020-02-20 14:18:38
-     $Rev: 1
+     $Rev: 9
 ```
 """
 
@@ -67,18 +67,12 @@ class SmsDocumentCrud:
         Returns:
             1 for successful Upsert, 0 for failed Upsert.
         """
-        data = [
-            {
-                "uniqueId": doc_id,
-                'data': item.smsData,
-                'UBID': payload.UBID,
-                "SMScount": item.SMScount,
-            }
-            for doc_id, item in payload.documents.items()
-        ]
+        for document in payload.documents:
+            document.UBID = payload.UBID
+
         query = (
             upsert(SmsDocumentModel)
-            .values(data)
+            .values(payload.model_dump()['documents'])
             .on_conflict_do_update(
                 index_elements=['UBID', 'uniqueId'],
                 set_=dict(
