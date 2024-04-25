@@ -52,7 +52,7 @@ The first highlight shows the sub-batch split calculation, together with the bsu
 
 The second highlight shows the yield for the "dangling" documents.
 
-``` py linenums="1" hl_lines="9-10 26" title="snippet from: app/insert_bigger_batch.py"
+``` py linenums="1" hl_lines="9-10 26" title="snippet from: insert_bigger_batch.py"
 def generate_documents(batch_size: int, ubid: str) -> tuple:
     batch = 1
     documents = []
@@ -84,7 +84,7 @@ def generate_documents(batch_size: int, ubid: str) -> tuple:
 The loop shows the iteration over the sub-batches and creating a task to send the sub-batch
 to the API.
 
-``` py linenums="1" title="snippet from: app/insert_bigger_batch.py"
+``` py linenums="1" title="snippet from: insert_bigger_batch.py"
 async def creator(args: argparse.Namespace):
     ubid = await create_and_insert_batch_transfer(args.batch_size)
 
