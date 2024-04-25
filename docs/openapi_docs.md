@@ -11,7 +11,7 @@ to the instantiation of the FastAPI app like this:
 
 ### central enrichments
 
-``` py linenums="1" hl_lines="3-6 15-16" title="app/main.py"
+``` py linenums="1" hl_lines="3-6 15-16" title="snippet from app/main.py"
 @dataclass(frozen=True)
 class Configuration:
     version: str = '0.3.0'
@@ -64,7 +64,7 @@ insert a row in the DB.
 
 The highlighted line below shows how to add the enrichment.
 
-``` py linenums="1" hl_lines="2" title="app/sms_transfer/models.py"
+``` py linenums="1" hl_lines="2" title="snippet from app/sms_transfer/models.py"
 class SmsTransferPayload(SQLModel):
     model_config = ConfigDict(json_schema_extra={"example": payload_documentation})
 
@@ -95,7 +95,7 @@ of the OpenAPI documentation.
 The second highlight on line seven is an example of enriching an input `Path` parameter.
 It explains what it is and what an example of it looks like.
 
-``` py linenums="1" hl_lines="4 7" title="app/sms_transfer/sms_transfer_routes.py"
+``` py linenums="1" hl_lines="4 7" title="snippet from app/sms_transfer/sms_transfer_routes.py"
 @ROUTER.delete(
     "/{ubid}/",
     status_code=204,
@@ -117,7 +117,7 @@ async def delete_sms_transfer_batch(
 
 The `Path` enrichment looks like this:
 
-``` py linenums="1" hl_lines="1" title="app/core/documentation.py"
+``` py linenums="1" hl_lines="1" title="snippet from app/core/documentation.py"
 ubid_documentation = Path(
     ...,
     description='Specify a **U**nique **B**atch **ID** to search for.<br>'

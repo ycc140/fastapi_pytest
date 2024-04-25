@@ -22,7 +22,7 @@ or [PostgreSQL](https://docs.sqlalchemy.org/en/20/dialects/postgresql.html#inser
 
 ### bulk upserts
 
-``` py linenums="1" hl_lines="3-4 9-14" title="snipped from: app/sms_document/sms_document_crud.py"
+``` py linenums="1" hl_lines="3-4 9-14" title="snippet from: app/sms_document/sms_document_crud.py"
     async def create(self, payload: SmsDocumentPayload) -> int:
 
         for document in payload.documents:

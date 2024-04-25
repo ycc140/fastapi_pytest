@@ -23,7 +23,7 @@ The content of the tests directory looks like this:
 
 In the test configuration file, the following fixture is what does the bulk of the work:
 
-``` py linenums="1" hl_lines="1 3" title="app/tests/conftest.py"
+``` py linenums="1" hl_lines="1 3" title="snippet from app/tests/conftest.py"
 @pytest.fixture(scope="module")
 def test_data(request: FixtureRequest) -> dict:
     name = request.node.get_closest_marker("test_data").args[0]

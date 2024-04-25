@@ -9,7 +9,7 @@ The API endpoint part uses monkey-patching to isolate itself from the database f
 
 I use monkey patching to simulate calls to the CRUD operations. A test case can look like this:
 
-``` py linenums="1" hl_lines="7-10" title="app/tests/test_sms_documents.py"
+``` py linenums="1" hl_lines="7-10" title="snippet from app/tests/test_sms_documents.py"
 async def test_create_sms_transfer(test_data: dict,
                                    test_app: TestClient,
                                    monkeypatch: pytest.MonkeyPatch):
@@ -41,7 +41,7 @@ As a side note, the mock_post input parameters might look a little bit weird
 
 For you to get a feel for this, this is what it looks like in the endpoint code:
 
-``` py linenums="1" hl_lines="11" title="app/sms_document/sms_transfer_routes.py"
+``` py linenums="1" hl_lines="11" title="snippet from app/sms_document/sms_transfer_routes.py"
 @ROUTER.post(
     "/",
     status_code=201,

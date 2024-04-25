@@ -1,6 +1,6 @@
 There are som interesting parts of the `SmsDocumentModel` that I want to point out.
 
-``` py linenums="1" hl_lines="6 12 19" title="app/sms_document/models.py"
+``` py linenums="1" hl_lines="6 12 19" title="snippet from app/sms_document/models.py"
 class SmsDocumentModel(ValidatingSQLModel, table=True):
     __tablename__ = "sms_documents"
 
@@ -48,7 +48,7 @@ time you open the database if you want to use it.
 By using the tools available to us, this can easily be handled in a good way, as the
 following snippet shows.
 
-``` py linenums="1" title="app/main.py"
+``` py linenums="1" title="snippet from app/main.py"
 @event.listens_for(async_engine.sync_engine, "connect")
 def set_sqlite_pragma(dbapi_connection: AsyncAdapt_aiosqlite_connection, _):
     cursor = dbapi_connection.cursor()
@@ -78,7 +78,7 @@ Line 1 in the previous models file shows the inheritance from the
 
 This is a snippet of a test file to verify that the validation works:
 
-``` py title="app/tests/test_validation_model.py"
+``` py title="snippet from app/tests/test_validation_model.py"
 class ValidationTestModel(ValidatingSQLModel, table=True):
     __tablename__ = "test"
     UBID: Optional[UUID] = Field(

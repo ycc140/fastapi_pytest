@@ -41,7 +41,7 @@ For the following code snippets, the inline documentation is removed to keep the
 
 The `sms_transfer` interface class looks like this:
 
-``` py linenums="1" title="app/sms_transfer/interface.py"
+``` py linenums="1" title="snippet from app/sms_transfer/interface.py"
 class ICrudRepository(Protocol):
     session: AsyncSession
 
@@ -62,7 +62,7 @@ class ICrudRepository(Protocol):
 
 The CRUD `create` method that's called looks like this:
 
-``` py linenums="1" title="app/sms_transfer/sms_transfer_crud.py"
+``` py linenums="1" title="snippet from app/sms_transfer/sms_transfer_crud.py"
 async def create(self, payload: SmsTransferPayload) -> int:
     query = (
         upsert(SmsTransferModel)
@@ -87,7 +87,7 @@ We are going to talk about this in more detail later on.
 
 This shows how the DB session connects to the specific CRUD implementation:
 
-``` py linenums="1" title="app/sms_transfer/dependencies.py"
+``` py linenums="1" title="snippet from app/sms_transfer/dependencies.py"
 async def get_repository_crud(
         session: AsyncSession = Depends(get_async_session)) -> SmsTransferCrud:
     return SmsTransferCrud(session=session)
@@ -100,7 +100,7 @@ to reduce dependencies and keep the code loosely coupled.
 
 This is what it looks like in the code for a API endpoint:
 
-``` py linenums="1" hl_lines="9" title="app/sms_transfer/sms_transfer_routes.py"
+``` py linenums="1" hl_lines="9" title="snippet from app/sms_transfer/sms_transfer_routes.py"
 @ROUTER.post(
     "/",
     status_code=201,
@@ -140,7 +140,7 @@ function, and I'm using it to insert DB sessions into the CRUD classes to keep t
 
 This is a three-layer coding technique that starts in the database module like this:
 
-``` py linenums="1" title="app/core/database.py"
+``` py linenums="1" title="snippet from app/core/database.py"
 async def get_async_session() -> AsyncSession:
     async_session = sessionmaker(
         bind=async_engine, class_=AsyncSession, expire_on_commit=False
@@ -154,7 +154,7 @@ This function is what's called a python generator (what is a generator? it's exp
 
 This shows how the `get_async_session` function connects to the specific CRUD implementation:
 
-``` py linenums="1" title="app/sms_transfer/dependencies.py"
+``` py linenums="1" title="snippet from app/sms_transfer/dependencies.py"
 async def get_repository_crud(
         session: AsyncSession = Depends(get_async_session)) -> SmsTransferCrud:
     return SmsTransferCrud(session=session)
@@ -162,7 +162,7 @@ async def get_repository_crud(
 
 This function is then used in the endpoint like this:
 
-``` py linenums="1" hl_lines="6" title="app/sms_transfer/sms_transfer_routes.py"
+``` py linenums="1" hl_lines="6" title="snippet from app/sms_transfer/sms_transfer_routes.py"
 @ROUTER.get(
     "/{ubid}/",
     response_model=List[SmsTransfer],
