@@ -6,8 +6,8 @@ License: Apache 2.0
 VERSION INFO:
     $Repo: fastapi_pytest
   $Author: Anders Wiklund
-    $Date: 2024-04-22 16:14:44
-     $Rev: 1
+    $Date: 2024-04-29 18:48:17
+     $Rev: 11
 ```
 """
 
@@ -17,11 +17,10 @@ from typing import List
 
 # Third party modules
 from sqlalchemy.exc import IntegrityError
-from fastapi import APIRouter, HTTPException, Depends, Response, status
+from fastapi import APIRouter, HTTPException, Response, status
 
 # Local modules
-from .interface import ICrudRepository
-from .dependencies import get_repository_crud
+from .unit_of_work import UnitOfRepositoryWork
 from ..core.models import UnknownError, NotFoundError
 from .models import SmsTransfer, SmsTransferPayload, SmsTransferState
 from ..core.documentation import ubid_documentation, state_documentation
@@ -39,15 +38,11 @@ ROUTER = APIRouter(prefix="/tracking/sms_transfers", tags=["SMS_transfers"])
     response_model=SmsTransfer,
     responses={422: {"model": UnknownError}}
 )
-async def create_sms_transfer_batch(
-        payload: SmsTransferPayload,
-        crud: ICrudRepository = Depends(get_repository_crud)
-) -> SmsTransferPayload:
+async def create_sms_transfer_batch(payload: SmsTransferPayload) -> SmsTransferPayload:
     """**Create new SMS transfer batch in table tracking.sms_transfers.**
 
     Args:
         payload: Create method payload.
-        crud: DB session.
 
     Returns:
         DB insert result.
@@ -56,7 +51,8 @@ async def create_sms_transfer_batch(
         HTTPException(422): When failed to UPSERT row in tracking.sms_transfers.
     """
     try:
-        await crud.create(payload)
+        async with UnitOfRepositoryWork() as crud:
+            await crud.create(payload)
 
     except IntegrityError as why:
         errmsg = (f"Failed Upsert of UBID '{payload.UBID}' in table "
@@ -72,19 +68,15 @@ async def create_sms_transfer_batch(
     "/{ubid}/",
     response_model=List[SmsTransfer],
 )
-async def read_all_sms_transfer_batches(
-        crud: ICrudRepository = Depends(get_repository_crud)
-) -> List[SmsTransfer]:
+async def read_all_sms_transfer_batches() -> List[SmsTransfer]:
     """
     **Return existing SMS transfer batches from table tracking.sms_transfers.**
-
-    Args:
-        crud: DB session
 
     Returns:
         All existing SMS transfer batches.
     """
-    return await crud.read_all()
+    async with UnitOfRepositoryWork() as crud:
+        return await crud.read_all()
 
 
 # ---------------------------------------------------------
@@ -96,15 +88,13 @@ async def read_all_sms_transfer_batches(
 )
 async def update_sms_transfer_batch_state(
         ubid: UUID = ubid_documentation,
-        state: SmsTransferState = state_documentation,
-        crud: ICrudRepository = Depends(get_repository_crud)
+        state: SmsTransferState = state_documentation
 ) -> SmsTransfer:
     """**Update SMS transfer batch state in table tracking.sms_transfers.**
 
     Args:
         ubid: Search key.
         state: First update value.
-        crud: Current DB session
 
     Returns:
         DB update result.
@@ -112,15 +102,17 @@ async def update_sms_transfer_batch_state(
     Raises:
         HTTPException(404): When the tracking.sms_transfers row is not found.
     """
-    response = await crud.read(ubid)
+    async with UnitOfRepositoryWork() as crud:
+        response = await crud.read(ubid)
 
-    if not response:
-        errmsg = (f"UBID '{ubid}' is not found in "
-                  f"table tracking.sms_transfers")
-        raise HTTPException(status_code=404, detail=errmsg)
+        if not response:
+            errmsg = (f"UBID '{ubid}' is not found in "
+                      f"table tracking.sms_transfers")
+            raise HTTPException(status_code=404, detail=errmsg)
 
-    await crud.update_state(ubid, state)
-    await crud.refresh(response)
+        await crud.update_state(ubid, state)
+        await crud.refresh(response)
+
     return response
 
 
@@ -131,20 +123,17 @@ async def update_sms_transfer_batch_state(
     status_code=204,
     responses={404: {"model": NotFoundError}}
 )
-async def delete_sms_transfer_batch(
-        ubid: UUID = ubid_documentation,
-        crud: ICrudRepository = Depends(get_repository_crud)
-):
+async def delete_sms_transfer_batch(ubid: UUID = ubid_documentation):
     """**Delete SMS transfer batch in table tracking.sms_transfers.**
 
     Args:
         ubid: First search key.
-        crud: Current DB session
 
     Raises:
         HTTPException(404): When the tracking.sms_transfers row is not found.
     """
-    response = await crud.delete(ubid)
+    async with UnitOfRepositoryWork() as crud:
+        response = await crud.delete(ubid)
 
     if not response:
         errmsg = (f"UBID '{ubid}' is not found "

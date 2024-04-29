@@ -6,8 +6,8 @@ License: Apache 2.0
 VERSION INFO:
     $Repo: fastapi_pytest
   $Author: Anders Wiklund
-    $Date: 2024-04-22 16:14:44
-     $Rev: 1
+    $Date: 2024-04-29 18:48:17
+     $Rev: 11
 ```
 """
 
@@ -18,10 +18,10 @@ from typing import List
 # Third party modules
 from sqlmodel import select, update, delete, func
 from sqlalchemy.engine.cursor import CursorResult
+from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.dialects.sqlite import insert as upsert
 
 # Local modules
-from ..core.database import AsyncSession
 from .models import (SmsTransferModel, SmsTransfer,
                      SmsTransferState, SmsTransferPayload)
 

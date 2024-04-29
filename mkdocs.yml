@@ -51,17 +51,15 @@ nav:
     - sms_document:
       - documentation: sms_document_docs.md
       - models: sms_document_models.md
-      - interface: sms_document_if.md
       - sms_document_crud: sms_document_crud.md
-      - dependencies: sms_document_dep.md
       - sms_document_routes: sms_document_routes.md
+      - unit_of_work: sms_document_uow.md
     - sms_transfer:
       - documentation: sms_transfer_docs.md
       - models: sms_transfer_models.md
-      - interface: sms_transfer_if.md
       - sms_transfer_crud: sms_transfer_crud.md
-      - dependencies: sms_transfer_dep.md
       - sms_transfer_routes: sms_transfer_routes.md
+      - unit_of_work: sms_transfer_uow.md
   - tests:
       - pytest.ini: pytest_ini.md
       - conftest: conftest.md

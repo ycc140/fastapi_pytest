@@ -6,8 +6,8 @@ License: Apache 2.0
 VERSION INFO:
     $Repo: fastapi_pytest
   $Author: Anders Wiklund
-    $Date: 2024-04-22 16:14:44
-     $Rev: 1
+    $Date: 2024-04-29 18:48:17
+     $Rev: 11
 ```
 """
 
@@ -16,11 +16,10 @@ from uuid import UUID
 
 # Third party modules
 from sqlalchemy.exc import IntegrityError
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException
 
 # Local modules
-from .interface import ICrudRepository
-from .dependencies import get_repository_crud
+from .unit_of_work import UnitOfRepositoryWork
 from ..core.models import UnknownError, NotFoundError
 from .models import SmsDocumentState, SmsDocumentPayload, QueryResponse
 from ..core.documentation import ubid_documentation, state_documentation
@@ -39,14 +38,11 @@ ROUTER = APIRouter(prefix="/tracking/sms_documents", tags=["SMS_documents"])
     responses={422: {"model": UnknownError}}
 )
 async def create_sms_transfer_batch_documents(
-        payload: SmsDocumentPayload,
-        crud: ICrudRepository = Depends(get_repository_crud)
-) -> QueryResponse:
+        payload: SmsDocumentPayload) -> QueryResponse:
     """**Create SMS batch document(s) in table tracking.sms_documents.**
 
     Args:
       payload: Create method payload.
-      crud: DB session.
 
     Returns:
         DB insert result.
@@ -55,7 +51,8 @@ async def create_sms_transfer_batch_documents(
         HTTPException(422): When failed to UPSERT row in tracking.sms_documents.
     """
     try:
-        count = await crud.create(payload)
+        async with UnitOfRepositoryWork() as crud:
+            count = await crud.create(payload)
 
     except IntegrityError as why:
         errmsg = (f"Failed Upsert of UBID '{payload.UBID}' document(s) "
@@ -75,16 +72,13 @@ async def create_sms_transfer_batch_documents(
     responses={404: {"model": NotFoundError}},
 )
 async def count_sms_transfer_batch_documents(
-        ubid: UUID = ubid_documentation,
-        crud: ICrudRepository = Depends(get_repository_crud)
-) -> QueryResponse:
+        ubid: UUID = ubid_documentation) -> QueryResponse:
     """
     **Return count of all SMS batch document(s) from table
     tracking.sms_documents.**
 
     Args:
         ubid: Batch search key.
-        crud: DB session
 
     Returns:
         Number of found SMS transfer batch documents as statistics.
@@ -92,7 +86,8 @@ async def count_sms_transfer_batch_documents(
     Raises:
         HTTPException(404): When the tracking.sms_documents row is not found.
     """
-    count = await crud.count(ubid)
+    async with UnitOfRepositoryWork() as crud:
+        count = await crud.count(ubid)
 
     if not count:
         errmsg = (f"UBID '{ubid}' not found in "
@@ -114,7 +109,6 @@ async def count_sms_transfer_batch_documents(
 async def update_sms_transfer_batch_documents_state(
         ubid: UUID = ubid_documentation,
         state: SmsDocumentState = state_documentation,
-        crud: ICrudRepository = Depends(get_repository_crud)
 ) -> QueryResponse:
     """
     **Update state for all SMS document(s) belonging to a batch
@@ -123,7 +117,6 @@ async def update_sms_transfer_batch_documents_state(
     Args:
         ubid: Batch search key.
         state: Update value.
-        crud: DB session
 
     Returns:
         DB update statistics.
@@ -131,7 +124,8 @@ async def update_sms_transfer_batch_documents_state(
     Raises:
         HTTPException(404): When the tracking.sms_documents row is not found.
     """
-    count = await crud.update_state(ubid, state)
+    async with UnitOfRepositoryWork() as crud:
+        count = await crud.update_state(ubid, state)
 
     if not count:
         errmsg = (f"UBID '{ubid}' not found in "

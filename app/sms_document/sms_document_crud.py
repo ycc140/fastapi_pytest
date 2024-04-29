@@ -7,7 +7,7 @@ VERSION INFO:
     $Repo: fastapi_pytest
   $Author: Anders Wiklund
    $search_date:: 2020-02-20 14:18:38
-     $Rev: 9
+     $Rev: 11
 ```
 """
 
@@ -17,10 +17,10 @@ from uuid import UUID
 # Third party modules
 from sqlmodel import select, update, func
 from sqlalchemy.engine.cursor import CursorResult
+from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.dialects.sqlite import insert as upsert
 
 # Local modules
-from ..core.database import AsyncSession
 from .models import SmsDocumentModel, SmsDocumentState, SmsDocumentPayload
 
 

@@ -6,8 +6,8 @@ License: Apache 2.0
 VERSION INFO:
     $Repo: fastapi_pytest
   $Author: Anders Wiklund
-    $Date: 2024-04-22 16:14:44
-     $Rev: 1
+    $Date: 2024-04-29 18:48:17
+     $Rev: 11
 ```
 """
 
@@ -35,7 +35,7 @@ from .core.database import create_async_db_tables, close_async_db, async_engine
 @dataclass(frozen=True)
 class Configuration:
     """ Configuration parameters for the FastAPI app. """
-    version: str = '0.3.0'
+    version: str = '0.4.0'
     log_level: str = 'info'
     title: str = 'TrackingDb API'
     name: str = 'TrackingDbService'
@@ -126,6 +126,7 @@ def set_sqlite_pragma(dbapi_connection: AsyncAdapt_aiosqlite_connection, _):
 
     Args:
         dbapi_connection: DB connection object.
+        _: Not used (needed by signature).
     """
     cursor = dbapi_connection.cursor()
     cursor.execute("PRAGMA foreign_keys=ON")

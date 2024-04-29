@@ -41,7 +41,7 @@ As a side note, the mock_post input parameters might look a little bit weird
 
 For you to get a feel for this, this is what it looks like in the endpoint code:
 
-``` py linenums="1" hl_lines="11" title="snippet from app/sms_document/sms_transfer_routes.py"
+``` py linenums="1" hl_lines="12" title="snippet from app/sms_document/sms_transfer_routes.py"
 @ROUTER.post(
     "/",
     status_code=201,

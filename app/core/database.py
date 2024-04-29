@@ -6,8 +6,8 @@ License: Apache 2.0
 VERSION INFO:
     $Repo: fastapi_pytest
   $Author: Anders Wiklund
-    $Date: 2024-04-23 01:15:57
-     $Rev: 3
+    $Date: 2024-04-29 18:48:17
+     $Rev: 11
 ```
 """
 
@@ -16,8 +16,6 @@ from sys import modules
 
 # Third party modules
 from sqlmodel import SQLModel
-from sqlalchemy.orm import sessionmaker
-from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.ext.asyncio import create_async_engine
 
 connection_url = ('sqlite+aiosqlite:///:memory:?cache=shared'
@@ -32,23 +30,6 @@ async_engine = create_async_engine(
     connect_args={"check_same_thread": False}
 )
 """ Create the SQLModel database engine. """
-
-
-# ---------------------------------------------------------
-#
-async def get_async_session() -> AsyncSession:
-    """ Return an active database session object from the pool.
-
-    Note that this is a DB session generator.
-
-    Returns:
-        An active DB session.
-    """
-    async_session = sessionmaker(
-        bind=async_engine, class_=AsyncSession, expire_on_commit=False
-    )
-    async with async_session() as session:
-        yield session
 
 
 # ---------------------------------------------------------
