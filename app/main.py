@@ -6,12 +6,13 @@ License: Apache 2.0
 VERSION INFO:
     $Repo: fastapi_pytest
   $Author: Anders Wiklund
-    $Date: 2024-04-29 18:48:17
-     $Rev: 11
+    $Date: 2024-04-30 16:44:28
+     $Rev: 13
 ```
 """
 
 # BUILTIN modules
+from typing import Any
 from pathlib import Path
 from dataclasses import dataclass
 from contextlib import asynccontextmanager
@@ -121,7 +122,7 @@ async def shutdown():
 # ---------------------------------------------------------
 #
 @event.listens_for(async_engine.sync_engine, "connect")
-def set_sqlite_pragma(dbapi_connection: AsyncAdapt_aiosqlite_connection, _):
+def set_sqlite_pragma(dbapi_connection: AsyncAdapt_aiosqlite_connection, _: Any):
     """ Enable foreign key usage on the sqlite database.
 
     Args:
