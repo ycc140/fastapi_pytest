@@ -6,8 +6,8 @@ License: Apache 2.0
 VERSION INFO:
     $Repo: fastapi_pytest
   $Author: Anders Wiklund
-    $Date: 2024-04-29 18:48:17
-     $Rev: 11
+    $Date: 2024-04-30 16:38:21
+     $Rev: 12
 ```
 """
 
@@ -77,7 +77,6 @@ class SmsTransferCrud:
             )
         )
         response: CursorResult = await self.session.exec(query)
-        await self.session.commit()
         return response.rowcount
 
     # ---------------------------------------------------------
@@ -132,7 +131,6 @@ class SmsTransferCrud:
             .values({'state': state})
         )
         response: CursorResult = await self.session.exec(query)
-        await self.session.commit()
         return response.rowcount
 
     # ---------------------------------------------------------
@@ -151,7 +149,6 @@ class SmsTransferCrud:
             .where(SmsTransferModel.UBID == str(ubid))
         )
         response: CursorResult = await self.session.exec(query)
-        await self.session.commit()
         return response.rowcount
 
     # ---------------------------------------------------------

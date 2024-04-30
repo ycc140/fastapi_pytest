@@ -5,7 +5,7 @@ For example, you have the [SOLID](https://en.wikipedia.org/wiki/SOLID) design pr
 and [GRASP](https://en.wikipedia.org/wiki/GRASP_(object-oriented_design)). Both contain
 a number of usable design patters to use.
 
-I have chosen to highlight two of the design patterns that I have used in this example.
+I have chosen to highlight three of the design patterns that I have used in this example.
 
 ### Repository design pattern
 
@@ -20,47 +20,38 @@ In this example, I have separated the CRUD database operations from the API endp
 Besides making the code more maintainable and easier to read, due to the abstraction,
 it also simplifies the testing.
 
-The separation is created by defining an interface for the CRUD operations that the endpoints
-can reference.
-This interface is implemented using the python
-[Protocol](https://typing.readthedocs.io/en/latest/spec/protocol.html#protocols) class.
-The CRUD class implements the methods defined in the interface.
+### Unit-of-Work design pattern
 
-The API endpoint expects the CRUD class to look and behave as specified in the interface,
-and the CRUD code has to adhere to the interface definitions for it to work.
-One of the advantages of using this pattern is that, if two developers are working on this together.
-The API endpoint guy can develop a quick, in memory implementation of the interface using
-a dict to handle the data while the other guy is developing the final CRUD version that
-contains ORM code accessing a database.
-The endpoint guy doesn't have to wait for the
-final CRUD code to be available to start developing his part of the assignment.
+??? note "A Unit of Work design pattern definition"
+
+    A unit of work is a behavioral pattern in software development. Martin Fowler
+    has defined it as everything one does during a business transaction which can
+    affect the database. When the unit of work is finished, it will provide
+    everything that needs to be done to change the database as a result of the work.
+
+I have implemented this pattern as a context manager.
+It's used for creating database sessions and automatically performing the Commit
+and Rollback when required.
+
+### Dependency Injection design pattern
+
+??? note "A Dependency Injection design pattern definition"
+
+    In software engineering, dependency injection is a design pattern in which
+    an object or function receives other objects or functions that it depends
+    on. A form of inversion of control, dependency injection aims to separate
+    the concerns of constructing objects and using them, leading to loosely coupled programs.
+
+This pattern is used for inserting the database session into the CRUD classes to
+keep the code loosely coupled.
+
+### Code snippets to show how the patterns are implemented and used
 
 For the following code snippets, the inline documentation is removed to keep the size down.
 
-#### interface
+#### CRUD implementation
 
-The `sms_transfer` interface class looks like this:
-
-``` py linenums="1" title="snippet from app/sms_transfer/interface.py"
-class ICrudRepository(Protocol):
-    session: AsyncSession
-
-    async def create(self, payload: SmsTransferPayload) -> int:
-
-    async def read_all(self) -> List[SmsTransfer]:
-
-    async def read(self, ubid: UUID) -> SmsTransfer | None:
-
-    async def update_state(self, ubid: UUID, state: SmsTransferState) -> int:
-
-    async def delete(self, ubid: UUID) -> int:
-
-    async def refresh(self, model: SmsTransferModel) -> SmsTransferModel:
-```
-
-#### CRUD implementation of the interface
-
-The CRUD `create` method that's called looks like this:
+A CRUD `create` method that's called looks like this:
 
 ``` py linenums="1" title="snippet from app/sms_transfer/sms_transfer_crud.py"
 async def create(self, payload: SmsTransferPayload) -> int:
@@ -76,7 +67,6 @@ async def create(self, payload: SmsTransferPayload) -> int:
         )
     )
     response: CursorResult = await self.session.exec(query)
-    await self.session.commit()
     return response.rowcount
 ```
 
@@ -85,34 +75,53 @@ We are going to talk about this in more detail later on.
 
 #### Creating CRUD access for the endpoint route
 
-This shows how the DB session connects to the specific CRUD implementation:
+The highlighted lines below show how the context manager creates a DB session,
+connects it to the specific CRUD implementation and return the CRUD instance.
+The `__aexit__` method shows handles the automatic `rollback`, or `commit`
+commands as well as closing the active session:
 
-``` py linenums="1" title="snippet from app/sms_transfer/dependencies.py"
-async def get_repository_crud(
-        session: AsyncSession = Depends(get_async_session)) -> SmsTransferCrud:
-    return SmsTransferCrud(session=session)
+``` py linenums="1" hl_lines="11-12" title="app/sms_transfer/unit_of_work.py"
+class UnitOfTransferWork:
+
+    def __init__(self):
+        self.session = None
+        self.session_maker = sessionmaker(
+            bind=async_engine, class_=AsyncSession, expire_on_commit=False
+        )
+
+    async def __aenter__(self) -> SmsTransferCrud:
+        logger.debug('Establishing SQLite session...')
+        self.session = self.session_maker()
+        return SmsTransferCrud(self.session)
+
+    async def __aexit__(self, exc_type, exc_val, traceback):
+        if exc_type is not None:
+            logger.debug('SQLite rollback...')
+            await self.session.rollback()
+
+        else:
+            logger.debug('SQLite commit...')
+            await self.session.commit()
+
+        logger.debug('Ending SQLite session...')
+        await self.session.close()
 ```
-
-It's placed in a separate file, instead of having it in the CRUD or route file,
-to reduce dependencies and keep the code loosely coupled.
 
 #### Endpoint route
 
-This is what it looks like in the code for a API endpoint:
+This is what it looks like in the code for an API endpoint:
 
-``` py linenums="1" hl_lines="9" title="snippet from app/sms_transfer/sms_transfer_routes.py"
+``` py linenums="1" hl_lines="9-10" title="snippet from app/sms_transfer/sms_transfer_routes.py"
 @ROUTER.post(
     "/",
     status_code=201,
     response_model=SmsTransfer,
     responses={422: {"model": UnknownError}}
 )
-async def create_sms_transfer_batch(
-        payload: SmsTransferPayload,
-        crud: ICrudRepository = Depends(get_repository_crud)
-) -> SmsTransferPayload:
+async def create_sms_transfer_batch(payload: SmsTransferPayload) -> SmsTransferPayload:
     try:
-        await crud.create(payload)
+        async with UnitOfTransferWork() as crud:
+            await crud.create(payload)
 
     except IntegrityError as why:
         errmsg = (f"Failed Upsert of UBID '{payload.UBID}' in table "
@@ -122,59 +131,7 @@ async def create_sms_transfer_batch(
     return payload
 ```
 
-All the CRUD details for this POST endpoint are *hidden* behind the highlighted line 9.
-Notice that it's the interface class that the type hint is pointing to, not the actual
-CRUD implementation.
-
-### Dependency Injection design pattern
-
-??? note "A Dependency Injection design pattern definition"
-
-    In software engineering, dependency injection is a design pattern in which
-    an object or function receives other objects or functions that it depends
-    on. A form of inversion of control, dependency injection aims to separate
-    the concerns of constructing objects and using them, leading to loosely coupled programs.
-
-This pattern is implemented in FastAPI by the [Depends](https://fastapi.tiangolo.com/tutorial/dependencies)
-function, and I'm using it to insert DB sessions into the CRUD classes to keep the code loosely-coupled.
-
-This is a three-layer coding technique that starts in the database module like this:
-
-``` py linenums="1" title="snippet from app/core/database.py"
-async def get_async_session() -> AsyncSession:
-    async_session = sessionmaker(
-        bind=async_engine, class_=AsyncSession, expire_on_commit=False
-    )
-    async with async_session() as session:
-        yield session
-```
-
-This function is what's called a python generator (what is a generator? it's explained
-[here](https://wiki.python.org/moin/Generators)).
-
-This shows how the `get_async_session` function connects to the specific CRUD implementation:
-
-``` py linenums="1" title="snippet from app/sms_transfer/dependencies.py"
-async def get_repository_crud(
-        session: AsyncSession = Depends(get_async_session)) -> SmsTransferCrud:
-    return SmsTransferCrud(session=session)
-```
-
-This function is then used in the endpoint like this:
-
-``` py linenums="1" hl_lines="6" title="snippet from app/sms_transfer/sms_transfer_routes.py"
-@ROUTER.get(
-    "/{ubid}/",
-    response_model=List[SmsTransfer],
-)
-async def read_all_sms_transfer_batches(
-        crud: ICrudRepository = Depends(get_repository_crud)
-) -> List[SmsTransfer]:
-    return await crud.read_all()
-```
-
-The highlighted line 6 shows how the endpoint gets access to the CRUD code
-that's already injected with an active DB session.
+All the CRUD details for this POST endpoint are *hidden* behind the highlighted lines.
 
 This makes it a good design with loosely coupled code in my eyes. This might not
 be the way that everybody prefers to code their APIs, and that is fine. To each their own.

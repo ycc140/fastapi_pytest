@@ -21,7 +21,7 @@ easy due to the used Repository design pattern implementation.
 
 The following techniques are incorporated and explained in the example:
 
-  * Using the Repository and the Dependency Injection design patterns.
+  * Using the Repository, the Dependency Injection and Unit of Work design patterns.
   * Using DB foreign key table linking with a cascading delete constraint.
   * Using bulk `Upsert` techniques with SQLModel and alchemy ORM handling.
   * How to split a document batch > 5000 documents into sub-batches in a memory efficient way.
@@ -59,20 +59,18 @@ This is the directory structure of the example. The docs directory structure has
        │  ├──📃 unified_logging.py
        │  └──📃 __init__.py
        ├──📂 sms_document
-       │  ├──📃 dependencies.py
        │  ├──📃 documentation.py
-       │  ├──📃 interface.py
        │  ├──📃 models.py
        │  ├──📃 sms_document_crud.py
        │  ├──📃 sms_document_routes.py
+       │  ├──📃 unit_of_work.py
        │  └──📃 __init__.py
        ├──📂 sms_transfer
-       │  ├──📃 dependencies.py
        │  ├──📃 documentation.py
-       │  ├──📃 interface.py
        │  ├──📃 models.py
        │  ├──📃 sms_transfer_crud.py
        │  ├──📃 sms_transfer_routes.py
+       │  ├──📃 unit_of_work.py
        │  └──📃 __init__.py
        └──📂 tests
           ├──📃 conftest.py

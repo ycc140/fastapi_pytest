@@ -95,17 +95,15 @@ of the OpenAPI documentation.
 The second highlight on line seven is an example of enriching an input `Path` parameter.
 It explains what it is and what an example of it looks like.
 
-``` py linenums="1" hl_lines="4 7" title="snippet from app/sms_transfer/sms_transfer_routes.py"
+``` py linenums="1" hl_lines="4 6" title="snippet from app/sms_transfer/sms_transfer_routes.py"
 @ROUTER.delete(
     "/{ubid}/",
     status_code=204,
     responses={404: {"model": NotFoundError}}
 )
-async def delete_sms_transfer_batch(
-        ubid: UUID = ubid_documentation,
-        crud: ICrudRepository = Depends(get_repository_crud)
-):
-    response = await crud.delete(ubid)
+async def delete_sms_transfer_batch(ubid: UUID = ubid_documentation):
+    async with UnitOfTransferWork() as crud:
+        response = await crud.delete(ubid)
 
     if not response:
         errmsg = (f"UBID '{ubid}' is not found "

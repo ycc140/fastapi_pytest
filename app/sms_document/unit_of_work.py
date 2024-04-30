@@ -6,8 +6,8 @@ License: Apache 2.0
 VERSION INFO:
     $Repo: fastapi_pytest
   $Author: Anders Wiklund
-    $Date: 2024-04-29 18:48:17
-     $Rev: 11
+    $Date: 2024-04-30 16:38:21
+     $Rev: 12
 ```
 """
 
@@ -23,7 +23,7 @@ from .sms_document_crud import SmsDocumentCrud
 
 # ------------------------------------------------------------------------
 #
-class UnitOfRepositoryWork:
+class UnitOfDocumentWork:
     """ An async context manager class that handles SmsDocument Repository work.
 
     It automatically handles transaction commit when everything worked and

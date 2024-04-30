@@ -6,8 +6,8 @@ License: Apache 2.0
 VERSION INFO:
     $Repo: fastapi_pytest
   $Author: Anders Wiklund
-    $Date: 2024-04-22 16:14:44
-     $Rev: 1
+    $Date: 2024-04-30 16:38:21
+     $Rev: 12
 ```
 """
 
@@ -26,6 +26,10 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 # Local modules
 from ..main import app, startup
 from ..core.database import async_engine
+from ..sms_transfer.unit_of_work import UnitOfTransferWork
+from ..sms_document.unit_of_work import UnitOfDocumentWork
+from ..sms_document.sms_document_crud import SmsDocumentCrud
+from ..sms_transfer.sms_transfer_crud import SmsTransferCrud
 
 # Remove all loggers since they are not needed during testing.
 logger.remove()
@@ -68,17 +72,28 @@ def test_data(request: FixtureRequest) -> dict:
 # ---------------------------------------------------------
 #
 @pytest_asyncio.fixture(scope="function")
-async def test_async_session() -> AsyncSession:
+async def transfer_crud() -> SmsTransferCrud:
     """
-    Create all tables if needed and return an active
-    database session object from the pool.
+    Create all tables if needed and return an
+    active SmsTransferCrud object.
 
     Note that this is a DB session generator.
     """
-    async_session = sessionmaker(
-        async_engine, class_=AsyncSession, expire_on_commit=False
-    )
-
-    async with async_session() as session:
+    async with UnitOfTransferWork() as crud:
         await startup()
-        yield session
+        yield crud
+
+
+# ---------------------------------------------------------
+#
+@pytest_asyncio.fixture(scope="function")
+async def document_crud() -> SmsDocumentCrud:
+    """
+    Create all tables if needed and return an
+    active SmsDocumentCrud object.
+
+    Note that this is a DB session generator.
+    """
+    async with UnitOfDocumentWork() as crud:
+        await startup()
+        yield crud

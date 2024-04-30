@@ -7,7 +7,7 @@ VERSION INFO:
     $Repo: fastapi_pytest
   $Author: Anders Wiklund
    $search_date:: 2020-02-20 14:18:38
-     $Rev: 11
+     $Rev: 12
 ```
 """
 
@@ -81,7 +81,6 @@ class SmsDocumentCrud:
             )
         )
         response: CursorResult = await self.session.exec(query)
-        await self.session.commit()
         return response.rowcount
 
     # ---------------------------------------------------------
@@ -124,5 +123,4 @@ class SmsDocumentCrud:
             .values({'state': state})
         )
         response: CursorResult = await self.session.exec(query)
-        await self.session.commit()
         return response.rowcount
