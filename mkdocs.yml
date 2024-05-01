@@ -39,35 +39,35 @@ nav:
   - OpenAPI documentation: openapi_docs.md
 - Code documentation:
   - Main modules:
-      - main: main.md
-      - run: run.md
-      - insert_bigger_batch: insert_batch.md
+      - main: source_code/main.md
+      - run: source_code/run.md
+      - insert_bigger_batch: source_code/insert_batch.md
   - core:
-    - database: core_db.md
-    - documentation: core_docs.md
-    - models: core_models.md
-    - unified_logging: core_logging.md
+    - database: source_code/core_db.md
+    - documentation: source_code/core_docs.md
+    - models: source_code/core_models.md
+    - unified_logging: source_code/core_logging.md
   - API modules:
     - sms_document:
-      - documentation: sms_document_docs.md
-      - models: sms_document_models.md
-      - sms_document_crud: sms_document_crud.md
-      - sms_document_routes: sms_document_routes.md
-      - unit_of_work: sms_document_uow.md
+      - documentation: source_code/sms_document_docs.md
+      - models: source_code/sms_document_models.md
+      - sms_document_crud: source_code/sms_document_crud.md
+      - sms_document_routes: source_code/sms_document_routes.md
+      - unit_of_work: source_code/sms_document_uow.md
     - sms_transfer:
-      - documentation: sms_transfer_docs.md
-      - models: sms_transfer_models.md
-      - sms_transfer_crud: sms_transfer_crud.md
-      - sms_transfer_routes: sms_transfer_routes.md
-      - unit_of_work: sms_transfer_uow.md
+      - documentation: source_code/sms_transfer_docs.md
+      - models: source_code/sms_transfer_models.md
+      - sms_transfer_crud: source_code/sms_transfer_crud.md
+      - sms_transfer_routes: source_code/sms_transfer_routes.md
+      - unit_of_work: source_code/sms_transfer_uow.md
   - tests:
       - pytest.ini: pytest_ini.md
-      - conftest: conftest.md
-      - test_sms_document_crud: test_sms_doc_crud.md
-      - test_sms_document_route: test_sms_doc_route.md
-      - test_sms_transfers_crud: test_sms_tran_crud.md
-      - test_sms_transfers_route: test_sms_tran_route.md
-      - test_validation_model: test_validation_model.md
+      - conftest: source_code/conftest.md
+      - test_sms_document_crud: source_code/test_sms_doc_crud.md
+      - test_sms_document_route: source_code/test_sms_doc_route.md
+      - test_sms_transfers_crud: source_code/test_sms_tran_crud.md
+      - test_sms_transfers_route: source_code/test_sms_tran_route.md
+      - test_validation_model: source_code/test_validation_model.md
 
 markdown_extensions:
 - tables

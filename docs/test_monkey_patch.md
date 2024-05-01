@@ -9,23 +9,26 @@ The API endpoint part uses monkey-patching to isolate itself from the database f
 
 I use monkey patching to simulate calls to the CRUD operations. A test case can look like this:
 
-``` py linenums="1" hl_lines="7-10" title="snippet from app/tests/test_sms_documents.py"
+``` py linenums="1" hl_lines="8-12" title="snippet from app/tests/test_sms_transfer_route.py"
 async def test_create_sms_transfer(test_data: dict,
-                                   test_app: TestClient,
-                                   monkeypatch: pytest.MonkeyPatch):
+                                   test_app: AsyncClient,
+                                   monkeypatch: MonkeyPatch):
+    """ Test create SMS transfer data. """
 
     # ---------------------------------
 
     async def mock_post(_, __):
+        """ Monkeypatch """
         return 1
 
     monkeypatch.setattr(SmsTransferCrud, "create", mock_post)
 
     # ---------------------------------
 
-    response = test_app.post("/tracking/sms_transfers/",
-                             json=test_data['create_transfer']['payload'])
-
+    response = await test_app.post(
+        "/sms_transfers/",
+        json=test_data['create_transfer']['payload']
+    )
     assert response.status_code == 201
     assert response.json() == test_data['create_transfer']['response']
 ```
@@ -41,19 +44,17 @@ As a side note, the mock_post input parameters might look a little bit weird
 
 For you to get a feel for this, this is what it looks like in the endpoint code:
 
-``` py linenums="1" hl_lines="12" title="snippet from app/sms_document/sms_transfer_routes.py"
+``` py linenums="1" hl_lines="9-10" title="snippet from app/sms_document/sms_transfer_routes.py"
 @ROUTER.post(
     "/",
     status_code=201,
     response_model=SmsTransfer,
     responses={422: {"model": UnknownError}}
 )
-async def create_sms_transfer_batch(
-        payload: SmsTransferPayload,
-        crud: ICrudRepository = Depends(get_repository_crud)
-) -> SmsTransferPayload:
+async def create_sms_transfer_batch(payload: SmsTransferPayload) -> SmsTransferPayload:
     try:
-        await crud.create(payload)
+        async with UnitOfTransferWork() as crud:
+            await crud.create(payload)
 
     except IntegrityError as why:
         errmsg = (f"Failed Upsert of UBID '{payload.UBID}' in table "
