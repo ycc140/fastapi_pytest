@@ -6,8 +6,8 @@ License: Apache 2.0
 VERSION INFO:
     $Repo: fastapi_pytest
   $Author: Anders Wiklund
-    $Date: 2024-04-30 16:38:21
-     $Rev: 12
+    $Date: 2024-05-01 17:12:04
+     $Rev: 14
 ```
 """
 
@@ -18,14 +18,11 @@ from pathlib import Path
 # Third party modules
 import pytest_asyncio
 from loguru import logger
+from httpx import AsyncClient
 from pytest import FixtureRequest
-from sqlalchemy.orm import sessionmaker
-from starlette.testclient import TestClient
-from sqlmodel.ext.asyncio.session import AsyncSession
 
 # Local modules
 from ..main import app, startup
-from ..core.database import async_engine
 from ..sms_transfer.unit_of_work import UnitOfTransferWork
 from ..sms_document.unit_of_work import UnitOfDocumentWork
 from ..sms_document.sms_document_crud import SmsDocumentCrud
@@ -37,15 +34,15 @@ logger.remove()
 
 # ---------------------------------------------------------
 #
-@pytest_asyncio.fixture(scope="module")
-def test_app():
-    """ Starlette TestClient generator. """
+@pytest_asyncio.fixture(scope="function")
+async def test_app():
+    """ httpx AsyncClient generator. """
 
-    with TestClient(
+    async with AsyncClient(
             app=app,
             base_url="http://localhost/tracking"
-    ) as test_client:
-        yield test_client
+    ) as client:
+        yield client
 
 
 # ---------------------------------------------------------
