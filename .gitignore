@@ -163,9 +163,8 @@ cython_debug/
 .build
 certs/
 apidocs/
-requirements_dev.*
+requirements_dev.txt
 .pre-commit-repo.json
 .pre-commit-config.yaml
 **/tracking.db
 **/tracking_test.db
-pydoctor.ini

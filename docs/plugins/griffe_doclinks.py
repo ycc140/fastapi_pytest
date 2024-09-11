@@ -3,7 +3,7 @@ from functools import partial
 from pathlib import Path
 from typing import Tuple
 
-from griffe.dataclasses import Object as GriffeObject
+from griffe import Object as GriffeObject
 from pymdownx.slugs import slugify
 
 DOCS_PATH = Path(__file__).parent.parent

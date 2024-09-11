@@ -6,8 +6,8 @@ License: Apache 2.0
 VERSION INFO:
     $Repo: fastapi_pytest
   $Author: Anders Wiklund
-    $Date: 2024-04-30 16:44:28
-     $Rev: 13
+    $Date: 2024-09-11 17:47:05
+     $Rev: 15
 ```
 """
 
@@ -36,7 +36,7 @@ from .core.database import create_async_db_tables, close_async_db, async_engine
 @dataclass(frozen=True)
 class Configuration:
     """ Configuration parameters for the FastAPI app. """
-    version: str = '0.4.0'
+    version: str = '0.5.0'
     log_level: str = 'info'
     title: str = 'TrackingDb API'
     name: str = 'TrackingDbService'

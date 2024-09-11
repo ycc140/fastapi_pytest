@@ -6,8 +6,8 @@ License: Apache 2.0
 VERSION INFO:
     $Repo: fastapi_pytest
   $Author: Anders Wiklund
-    $Date: 2024-04-30 16:38:21
-     $Rev: 12
+    $Date: 2024-09-11 17:47:05
+     $Rev: 15
 ```
 """
 
@@ -19,7 +19,8 @@ from sqlalchemy.exc import IntegrityError
 from fastapi import APIRouter, HTTPException
 
 # Local modules
-from .unit_of_work import UnitOfDocumentWork
+from ..core.unit_of_work import UnitOfWork
+from .sms_document_crud import SmsDocumentCrud
 from ..core.models import UnknownError, NotFoundError
 from .models import SmsDocumentState, SmsDocumentPayload, QueryResponse
 from ..core.documentation import ubid_documentation, state_documentation
@@ -51,7 +52,7 @@ async def create_sms_transfer_batch_documents(
         HTTPException(422): When failed to UPSERT row in tracking.sms_documents.
     """
     try:
-        async with UnitOfDocumentWork() as crud:
+        async with UnitOfWork(SmsDocumentCrud) as crud:
             count = await crud.create(payload)
 
     except IntegrityError as why:
@@ -86,7 +87,7 @@ async def count_sms_transfer_batch_documents(
     Raises:
         HTTPException(404): When the tracking.sms_documents row is not found.
     """
-    async with UnitOfDocumentWork() as crud:
+    async with UnitOfWork(SmsDocumentCrud) as crud:
         count = await crud.count(ubid)
 
     if not count:
@@ -124,7 +125,7 @@ async def update_sms_transfer_batch_documents_state(
     Raises:
         HTTPException(404): When the tracking.sms_documents row is not found.
     """
-    async with UnitOfDocumentWork() as crud:
+    async with UnitOfWork(SmsDocumentCrud) as crud:
         count = await crud.update_state(ubid, state)
 
     if not count:

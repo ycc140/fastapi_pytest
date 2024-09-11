@@ -6,8 +6,8 @@ License: Apache 2.0
 VERSION INFO:
     $Repo: fastapi_pytest
   $Author: Anders Wiklund
-    $Date: 2024-04-30 16:38:21
-     $Rev: 12
+    $Date: 2024-09-11 17:47:05
+     $Rev: 15
 ```
 """
 
@@ -20,7 +20,8 @@ from sqlalchemy.exc import IntegrityError
 from fastapi import APIRouter, HTTPException, Response, status
 
 # Local modules
-from .unit_of_work import UnitOfTransferWork
+from ..core.unit_of_work import UnitOfWork
+from .sms_transfer_crud import SmsTransferCrud
 from ..core.models import UnknownError, NotFoundError
 from .models import SmsTransfer, SmsTransferPayload, SmsTransferState
 from ..core.documentation import ubid_documentation, state_documentation
@@ -51,7 +52,7 @@ async def create_sms_transfer_batch(payload: SmsTransferPayload) -> SmsTransferP
         HTTPException(422): When failed to UPSERT row in tracking.sms_transfers.
     """
     try:
-        async with UnitOfTransferWork() as crud:
+        async with UnitOfWork(SmsTransferCrud) as crud:
             await crud.create(payload)
 
     except IntegrityError as why:
@@ -75,7 +76,7 @@ async def read_all_sms_transfer_batches() -> List[SmsTransfer]:
     Returns:
         All existing SMS transfer batches.
     """
-    async with UnitOfTransferWork() as crud:
+    async with UnitOfWork(SmsTransferCrud) as crud:
         return await crud.read_all()
 
 
@@ -102,7 +103,7 @@ async def update_sms_transfer_batch_state(
     Raises:
         HTTPException(404): When the tracking.sms_transfers row is not found.
     """
-    async with UnitOfTransferWork() as crud:
+    async with UnitOfWork(SmsTransferCrud) as crud:
         response = await crud.read(ubid)
 
         if not response:
@@ -132,7 +133,7 @@ async def delete_sms_transfer_batch(ubid: UUID = ubid_documentation):
     Raises:
         HTTPException(404): When the tracking.sms_transfers row is not found.
     """
-    async with UnitOfTransferWork() as crud:
+    async with UnitOfWork(SmsTransferCrud) as crud:
         response = await crud.delete(ubid)
 
     if not response:

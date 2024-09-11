@@ -55,7 +55,7 @@ plugins:
           options:
             members_order: source
             separate_signature: true
-            filters: ["!^_"]
+            filters: ["!^___"]
             docstring_options:
               ignore_init_summary: true
             merge_init_into_class: true
@@ -86,19 +86,18 @@ nav:
     - documentation: source/core_docs.md
     - models: source/core_models.md
     - unified_logging: source/core_logging.md
+    - unit_of_work: source/core_uow.md
   - API modules:
     - sms_document:
       - documentation: source/sms_document_docs.md
       - models: source/sms_document_models.md
       - sms_document_crud: source/sms_document_crud.md
       - sms_document_routes: source/sms_document_routes.md
-      - unit_of_work: source/sms_document_uow.md
     - sms_transfer:
       - documentation: source/sms_transfer_docs.md
       - models: source/sms_transfer_models.md
       - sms_transfer_crud: source/sms_transfer_crud.md
       - sms_transfer_routes: source/sms_transfer_routes.md
-      - unit_of_work: source/sms_transfer_uow.md
   - tests:
       - pytest.ini: pytest_ini.md
       - conftest: source/conftest.md

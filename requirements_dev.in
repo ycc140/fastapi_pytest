@@ -1,0 +1,15 @@
+aiosqlite
+fastapi
+httpx
+loguru
+sqlmodel
+uvicorn[standard]
+
+# dev
+black
+mkdocs
+mkdocs-material
+mkdocstrings-python
+pytest
+pytest-asyncio
+pytest-cov
