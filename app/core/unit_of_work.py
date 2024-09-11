@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 """
 ```
-Copyright: Ropo Capital Messaging AB
+License: Apache 2.0
 
 VERSION INFO:
     $Repo: fastapi_pytest
   $Author: Anders Wiklund
-    $Date: 2024-09-11 17:47:05
-     $Rev: 15
+    $Date: 2024-09-11 17:58:22
+     $Rev: 16
 ```
 """
 

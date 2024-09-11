@@ -6,8 +6,8 @@ License: Apache 2.0
 VERSION INFO:
     $Repo: fastapi_pytest
   $Author: Anders Wiklund
-    $Date: 2024-05-01 17:12:04
-     $Rev: 14
+    $Date: 2024-09-11 17:58:22
+     $Rev: 16
 ```
 """
 
@@ -23,8 +23,7 @@ from pytest import FixtureRequest
 
 # Local modules
 from ..main import app, startup
-from ..sms_transfer.unit_of_work import UnitOfTransferWork
-from ..sms_document.unit_of_work import UnitOfDocumentWork
+from ..core.unit_of_work import UnitOfWork
 from ..sms_document.sms_document_crud import SmsDocumentCrud
 from ..sms_transfer.sms_transfer_crud import SmsTransferCrud
 
@@ -76,7 +75,7 @@ async def transfer_crud() -> SmsTransferCrud:
 
     Note that this is a DB session generator.
     """
-    async with UnitOfTransferWork() as crud:
+    async with UnitOfWork(SmsTransferCrud) as crud:
         await startup()
         yield crud
 
@@ -91,6 +90,6 @@ async def document_crud() -> SmsDocumentCrud:
 
     Note that this is a DB session generator.
     """
-    async with UnitOfDocumentWork() as crud:
+    async with UnitOfWork(SmsDocumentCrud) as crud:
         await startup()
         yield crud

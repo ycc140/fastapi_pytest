@@ -6,8 +6,8 @@ License: Apache 2.0
 VERSION INFO:
     $Repo: fastapi_pytest
   $Author: Anders Wiklund
-   $search_date:: 2020-02-20 14:18:38
-     $Rev: 12
+    $date: 2020-02-20 14:18:38
+     $Rev: 16
 ```
 """
 
