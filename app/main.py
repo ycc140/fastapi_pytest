@@ -6,8 +6,8 @@ License: Apache 2.0
 VERSION INFO:
     $Repo: fastapi_pytest
   $Author: Anders Wiklund
-    $Date: 2024-09-11 17:47:05
-     $Rev: 15
+    $Date: 2024-12-11 19:51:22
+     $Rev: 20
 ```
 """
 
@@ -84,6 +84,20 @@ class Service(FastAPI):
 
 # ---------------------------------------------------------
 #
+async def startup():
+    """ Create asynchronous database pool and missing tables. """
+    await create_async_db_tables()
+
+
+# ---------------------------------------------------------
+#
+async def shutdown():
+    """ Close asynchronous database connection pool. """
+    await close_async_db()
+
+
+# ---------------------------------------------------------
+#
 @asynccontextmanager
 async def lifespan(_):
     """ Define startup and shutdown application logic. """
@@ -103,20 +117,6 @@ app = Service(
     openapi_tags=tags_metadata,
 )
 """ Create the FastAPI application. """
-
-
-# ---------------------------------------------------------
-#
-async def startup():
-    """ Create asynchronous database pool and missing tables. """
-    await create_async_db_tables()
-
-
-# ---------------------------------------------------------
-#
-async def shutdown():
-    """ Close asynchronous database connection pool. """
-    await close_async_db()
 
 
 # ---------------------------------------------------------

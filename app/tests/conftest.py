@@ -6,8 +6,8 @@ License: Apache 2.0
 VERSION INFO:
     $Repo: fastapi_pytest
   $Author: Anders Wiklund
-    $Date: 2024-12-11 18:54:24
-     $Rev: 18
+    $Date: 2024-12-11 19:51:22
+     $Rev: 20
 ```
 """
 
@@ -49,7 +49,7 @@ async def test_app():
 #
 @pytest_asyncio.fixture(scope="module")
 def test_data(request: FixtureRequest) -> dict:
-    """ Automatically load the the unique test data file to each test module.
+    """ Automatically load the unique test data file to each test module.
 
     Args:
         request: Contains the name of test file to load.
