@@ -6,8 +6,8 @@ License: Apache 2.0
 VERSION INFO:
     $Repo: fastapi_pytest
   $Author: Anders Wiklund
-    $Date: 2024-09-11 17:58:22
-     $Rev: 16
+    $Date: 2024-12-11 18:54:24
+     $Rev: 18
 ```
 """
 
@@ -18,8 +18,8 @@ from pathlib import Path
 # Third party modules
 import pytest_asyncio
 from loguru import logger
-from httpx import AsyncClient
 from pytest import FixtureRequest
+from httpx import AsyncClient, ASGITransport
 
 # Local modules
 from ..main import app, startup
@@ -36,9 +36,10 @@ logger.remove()
 @pytest_asyncio.fixture(scope="function")
 async def test_app():
     """ httpx AsyncClient generator. """
+    transport = ASGITransport(app=app)
 
     async with AsyncClient(
-            app=app,
+            transport=transport,
             base_url="http://localhost/tracking"
     ) as client:
         yield client
