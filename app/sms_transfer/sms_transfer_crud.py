@@ -6,8 +6,8 @@ License: Apache 2.0
 VERSION INFO:
     $Repo: fastapi_pytest
   $Author: Anders Wiklund
-    $Date: 2024-04-30 16:38:21
-     $Rev: 12
+    $Date: 2024-12-11 18:22:17
+     $Rev: 17
 ```
 """
 
@@ -153,7 +153,7 @@ class SmsTransferCrud:
 
     # ---------------------------------------------------------
     #
-    async def refresh(self, model: SmsTransferModel) -> SmsTransferModel:
+    async def refresh(self, model: SmsTransferModel):
         """ Refresh the content of the specified DB model.
 
         Args:
@@ -162,4 +162,4 @@ class SmsTransferCrud:
         Returns:
             DB refresh result.
         """
-        return await self.session.refresh(model)
+        await self.session.refresh(model)
