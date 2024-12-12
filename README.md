@@ -80,6 +80,14 @@ you run the example like this:
 (venv)fastapi_pytest$ run.py
 ```
 
+### Running the tests (with code coverage)
+
+you run the tests like this:
+
+```
+(venv)fastapi_pytest$ pytest -v  --cov-report html --cov=app app
+```
+
 ### Exploring the MkDocs documentation
 
 If you want to look at the excellent documentation created using MkDocs, we need to install
