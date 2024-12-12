@@ -9,9 +9,3 @@ uvicorn[standard]==0.32.1
 pytest==8.3.4
 pytest-asyncio==0.24.6
 pytest-cov==6.0.0
-
-# documentation
-black==24.10.0
-mkdocs==1.6.1
-mkdocs-material==9.5.48
-mkdocstrings-python==1.12.2
